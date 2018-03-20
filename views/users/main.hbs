@@ -1,3 +1,108 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
-<p>contextPath is {{contextPath}}</p>
+<h1 class="text-center">密码管理</h1>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <td>ID</td>
+            <td>类别</td>
+            <td>所属应用</td>
+            <td>账号</td>
+            <td>创建时间</td>
+            <td>最后更新时间</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each lists}}
+        <tr class="pass-item{{id}}">
+            <td>{{id}}</td>
+            <td>{{typeName}}</td>
+            <td>{{appName}}</td>
+            <td>{{userName}}</td>
+            <td>{{createDate}}</td>
+            <td>{{modifyDate}}</td>
+            <td>
+                <button class="btn btn-warning">更新密码</button>
+                <button data-id="{{id}}" class="btn btn-checkpass btn-success">查看密码</button>
+                <button data-id="{{id}}" class="btn btn-checkpass1 btn-success">收起密码</button>
+            </td>
+        </tr>
+        <tr class="pass-detail{{id}} pass-detail">
+            <td colspan="7">
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>名称</th>
+                        <th>密码</th>
+                        <th>备注</th>
+                    </tr>
+                    </thead>
+                    <tbody class="pass-detail-item{{id}}">
+                    <tr>
+                        <td>101</td>
+                        <td>登录密码</td>
+                        <td><label class="label label-danger">123456</label></td>
+                        <td>无</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
+
+<script>
+$(function() {
+    $('.btn-checkpass').click(function() {
+        let id = $(this).data('id');
+        $('.btn-checkpass1').show();
+        $('.btn-checkpass').hide();
+        $.get('/users/getAllPasswords', {accountId: id}, function({status, message, list}) {
+          if(status == 1) {
+            renderDetail(id, list)
+          }else {
+            alert(message)
+          }
+        }, 'json');
+    });
+    $('.btn-checkpass1').click(function() {
+        let id = $(this).data('id');
+        $('.btn-checkpass').show();
+        $('.btn-checkpass1').hide();
+
+        showDetail(id, false);
+    });
+
+    function renderDetail(id, list) {
+      let html = list.map(({id, accountId, passName, password, passMemo}) => `
+        <tr>
+            <td>${id}</td>
+            <td>${passName}</td>
+            <td><label class="label label-danger">${password}</label></td>
+            <td>${passMemo}</td>
+        </tr>
+      `).join('');
+      console.log(html)
+      $('.pass-detail-item'+id).html(html);
+      showDetail(id, true);
+    }
+
+    function showDetail(id, visible) {
+      if(visible) {
+        $(`.pass-detail${id}`).show();
+      }else {
+          $(`.pass-detail${id}`).hide();
+      }
+    }
+});
+</script>
+
+<style>
+    .btn-checkpass1 {
+        display: none;
+    }
+    .pass-detail {
+        display: none;
+    }
+</style>
