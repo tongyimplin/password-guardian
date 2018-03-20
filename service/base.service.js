@@ -21,6 +21,12 @@ class SqliteDao {
     });
   }
 
+  //查询单个
+  unique(sql) {
+    return new Promise((resolve, reject) => this.query(sql)
+      .then(results => resolve(results && results.length>0 ? results[0]: null)));
+  }
+
   // 查询
   query(sql) {
     return new Promise((resolve, reject) => {

@@ -35,7 +35,11 @@ CREATE TABLE "main"."t_password" (
 "accountId"  INTEGER DEFAULT 账户id,
 "passName"  TEXT DEFAULT 普通名词,
 "password"  TEXT DEFAULT 密码,
-"passMemo"  TEXT DEFAULT 密码备注
+"passMemo"  TEXT DEFAULT 密码备注,
+"createDate"  TEXT DEFAULT 创建时间,
+"modifyDate"  TEXT DEFAULT 最新的修改时间,
+"passType" INTEGER DEFAULT 0,
+"deleteFlag" INTEGER DEFAULT 0
 )
 ;
 `);
@@ -46,8 +50,7 @@ SQL_createTables.push(`
     "appId"  TEXT DEFAULT 所属应用id,
     "userName"  TEXT DEFAULT 用户账号,
     "typeId"  INTEGER DEFAULT 类别id,
-    "createDate"  TEXT DEFAULT 创建时间,
-    "modifyDate"  TEXT DEFAULT 最新的修改时间
+    "deleteFlag" INTEGER DEFAULT 0
     )
     ;`);
 SQL_createTables.push(`DROP VIEW IF EXISTS v_account_list`);
@@ -95,20 +98,20 @@ INSERT INTO "main"."t_app" (id, name, memo) values("${t.id}", "${t.name}", "${t.
 //账号
 let modifyDate = createDate = moment().format('YYYY-MM-DD HH:mm:ss');
 [
-  {id: 1001, appId: 101, userName:'461415520', typeId: 201, createDate, modifyDate},
-  {id: 1002, appId: 104, userName:'62284804623554', typeId: 201, createDate, modifyDate},
+  {id: 1001, appId: 101, userName:'461415520', typeId: 201},
+  {id: 1002, appId: 104, userName:'62284804623554', typeId: 201},
 ].forEach(({id, appId, userName, typeId, createDate, modifyDate}) => SQL_preparedDatas.push(`
-INSERT INTO "main"."t_account" (id, appId, userName, typeId, createDate, modifyDate)
-values("${id}","${appId}","${userName}","${typeId}","${createDate}","${modifyDate}");
+INSERT INTO "main"."t_account" (id, appId, userName, typeId)
+values("${id}","${appId}","${userName}","${typeId}");
 `));
 //账号密码
 [
-  {id:1001, accountId:1001, passName:"登录密码", passMemo:"", password:randUtil.randStr(12)},
-  {id:1002, accountId:1002, passName:"登录密码", passMemo:"", password:randUtil.randStr(12)},
-  {id:1003, accountId:1002, passName:"支付密码", passMemo:"", password:randUtil.randomBankPass(6)},
-].forEach(({id, accountId, passName, passMemo, password}) => SQL_preparedDatas.push(`
-INSERT INTO "main"."t_password" (id, accountId, passName, passMemo, password) 
-VALUES("${id}","${accountId}","${passName}","${passMemo}","${password}");
+  {id:1001, accountId:1001, passName:"登录密码", passMemo:"", password:randUtil.randStr(12), createDate, modifyDate, passType:0},
+  {id:1002, accountId:1002, passName:"登录密码", passMemo:"", password:randUtil.randStr(12), createDate, modifyDate, passType:0},
+  {id:1003, accountId:1002, passName:"支付密码", passMemo:"", password:randUtil.randomBankPass(6), createDate, modifyDate, passType:1},
+].forEach(({id, accountId, passName, passMemo, password, passType}) => SQL_preparedDatas.push(`
+INSERT INTO "main"."t_password" (id, accountId, passName, passMemo, password, createDate, modifyDate, passType) 
+VALUES("${id}","${accountId}","${passName}","${passMemo}","${password}","${createDate}","${modifyDate}", "${passType}");
 `));
 
 
