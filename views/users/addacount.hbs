@@ -1,0 +1,52 @@
+<h1>{{title}}</h1>
+<form action="addacount" method="post">
+    <div class="form-group">
+        <label>所属应用:</label>
+        <select name="appId" class="appId">
+        {{#each apps}}
+            <option value="{{id}}">{{name}}</option>
+        {{/each}}
+            <option value="-1">其他</option>
+        </select>
+        <input type="text" name="appName" class="form-control app-name" placeholder="请输入应用名">
+    </div>
+    <div class="form-group">
+        <label>账号类型:</label>
+        <select name="typeId" class="typeId">
+        {{#each types}}
+            <option value="{{id}}">{{title}}</option>
+        {{/each}}
+            <option value="-1">其他</option>
+        </select>
+        <input type="text" name="typeName" class="form-control type-name" placeholder="请输入类型名">
+    </div>
+    <div class="form-group">
+        <label>账户名称:</label>
+        <input name="userName" type="text" class="form-control" placeholder="如QQ：461415520">
+    </div>
+    <div class="form-group">
+        <label>登录密码:</label>
+        <input name="loginPass" type="text" class="form-control" placeholder="请输入密码(不输入则默认随机)">
+    </div>
+    <div class="form-group">
+        <input type="hidden" name="accountId" value="{{account.id}}">
+        <input type="submit" class="btn btn-primary" value="提交">
+    </div>
+</form>
+<script>
+$(function() {
+  $('.appId').change(function() {
+    let val = $(this).val();
+    $('.app-name')[val==-1 ? 'show' : 'hide']().val('');
+  });
+  $('.typeId').change(function() {
+      let val = $(this).val();
+      $('.type-name')[val==-1 ? 'show' : 'hide']().val('');
+  });
+});
+</script>
+<style>
+.type-name, .app-name {
+    display: none;
+}
+</style>

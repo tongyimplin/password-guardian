@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var baseService = require('../service/base.service');
 var moment = require('moment');
+var randUtil = require('../utils/rand-util');
 
 /*router.use((req, res, next) => {
   if(!req.session.isLogined) {
@@ -16,6 +17,7 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
+//主页
 router.get('/main', (req, res) => {
   baseService.query(`select * from v_account_list where deleteFlag=0 order by id desc`)
     .then((results) => {
@@ -30,7 +32,7 @@ router.get('/main', (req, res) => {
       });
     });
 });
-
+//查询某个账号的所有密码
 router.get('/getAllPasswords', (req, res) => {
   let {accountId} = req.query;
   if(!accountId) {
@@ -54,6 +56,58 @@ router.get('/getAllPasswords', (req, res) => {
   }
 });
 
+// 添加账户
+router.get('/addaccount', (req, res, next) => {
+  let pGetTypes = baseService.query('select * from t_account_type'),
+    pGetApps = baseService.query('select * from t_app')
+  ;
+  Promise.all([pGetApps, pGetTypes])
+    .then(([apps, types]) => {
+      res.render('users/addacount', {
+        title: '添加账户',
+        apps, types
+      })
+    })
+    .catch(err => console.log(err));
+});
+router.post('/addacount', (req, res, next) => {
+  let {appId, appName, typeId, typeName, userName, loginPass} = req.body,
+    pGetAppId = new Promise((resolve, reject) => {
+      if(appId != -1) {
+        resolve(appId);
+      }else {
+        baseService.update(`insert into t_app(name, memo) values("${appName}", "")`)
+          .then(({lastID}) => resolve(lastID));
+      }
+    }),
+    pGetTypeId = new Promise((resolve, reject) => {
+      if(typeId != -1) {
+        resolve(typeId);
+      }else {
+        baseService.update(`insert into t_account_type(title) values("${typeName}")`)
+          .then(({lastID}) => resolve(lastID));
+      }
+    }),
+    modifyDate = moment().format('YYYY-MM-DD HH:mm:ss')
+  ;
+  Promise.all([pGetAppId, pGetTypeId]).then(([newAppId, newTypeId]) => {
+    baseService.update(`insert into t_account(appId, typeId, userName) 
+      values(${newAppId},${newTypeId}, "${userName}")`)
+      .then(({lastID}) => Promise.resolve(lastID))
+      .then(newAccountId => {
+        if(!loginPass) {
+          loginPass = randUtil.randStr(12);
+        }
+        return baseService.update(`
+        insert into t_password(accountId, passName, password, passMemo, createDate, modifyDate, passType)
+        values(${newAccountId}, "登录密码", "${loginPass}", "", "${modifyDate}", "${modifyDate}", "0")`)
+      })
+      .then(() => res.redirect('main'));
+  });
+
+});
+
+// 删除账号
 router.get('/delaccount', (req, res, next) => {
   let id = req.query.id;
   if(!id) {
@@ -67,6 +121,18 @@ router.get('/delaccount', (req, res, next) => {
   }
 });
 
+// 删除密码
+router.get('/delpass', (req, res, next) => {
+  let id = req.query.id;
+  if(!id) {
+    res.redirect('main');
+  }else {
+    baseService.update(`delete from t_password where id=${id}`)
+      .then(updates => res.redirect('main'));
+  }
+});
+
+//给账号添加密码
 router.get('/addpass', (req, res, next) => {
   baseService.unique(`select * from v_account_list where id=${req.query.accountId} limit 1`)
     .then(obj => {
@@ -88,6 +154,17 @@ router.post('/addpass', (req, res, next) => {
   `)
     .then(({changes}) => res.redirect('main'))
     .catch(err => res.redirect('/error'));
+});
+
+// 更新密码
+router.get('/updatepass', (req, res, next) => {
+  let {id} = req.query;
+  if(!id) {
+    res.redirect('main');
+  }else {
+    baseService.update(`delete from t_password where id=${id}`)
+      .then(updates => res.redirect('main'));
+  }
 });
 
 module.exports = router;
