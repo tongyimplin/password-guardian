@@ -4,13 +4,13 @@ var baseService = require('../service/base.service');
 var moment = require('moment');
 var randUtil = require('../utils/rand-util');
 
-/*router.use((req, res, next) => {
-  if(!req.session.isLogined) {
+router.use((req, res, next) => {
+  if(!req.session.isLogined && global.env === 'production') {
     res.redirect('/login')
   }else {
     next();
   }
-});*/
+});
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -157,13 +157,22 @@ router.post('/addpass', (req, res, next) => {
 });
 
 // 更新密码
-router.get('/updatepass', (req, res, next) => {
-  let {id} = req.query;
+router.post('/updatepass', (req, res, next) => {
+  let {id, passType} = req.body;
   if(!id) {
-    res.redirect('main');
+    res.json({
+      status: -1,
+      message: '发送了错误!'
+    });
   }else {
-    baseService.update(`delete from t_password where id=${id}`)
-      .then(updates => res.redirect('main'));
+    let newPassword = passType == 0 ? randUtil.randStr(12) : randUtil.randomBankPass(),
+      modifyDate = moment().format("YYYY-MM-DD HH:mm:SS");
+    baseService.update(`update t_password set password="${newPassword}", modifyDate="${modifyDate}" where id=${id}`)
+      .then(({changes, lastID, sql}) => res.json({
+        status: changes,
+        message: '修改成功!',
+        newPass: newPassword
+      }));
   }
 });
 

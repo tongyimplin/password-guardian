@@ -84,15 +84,15 @@ $(function() {
     });
 
     function renderDetail(id, list) {
-      let html = list.map(({id, accountId, passName, password, passMemo, modifyDate}) => `
+      let html = list.map(({id, accountId, passName, password, passMemo, modifyDate, passType}) => `
         <tr>
             <td>${id}</td>
             <td>${passName}</td>
             <td>${modifyDate}</td>
-            <td><label class="label label-danger">${password}</label></td>
+            <td><label class="label label-danger t-password-${id}">${password}</label></td>
             <td>${passMemo}</td>
             <td>
-                <button data-id="${id}" class="btn btn-warning">更新密码</button>
+                <button data-id="${id}" data-passtype="${passType}" class="btn btn-warning btn-update-pass">更新密码</button>
                 <a onclick="return confirm('确认删除')" href="delpass?id=${id}" class="btn btn-danger">删除密码</a>
             </td>
         </tr>
@@ -100,6 +100,18 @@ $(function() {
       $('.pass-detail-item'+id).html(html);
       showDetail(id, true);
     }
+
+    $('body').on('click', '.btn-update-pass', function() {
+      let [id, passType] = [$(this).data('id'), $(this).data('passtype')];
+      if(confirm("是否更新改密码?")) {
+        $.post('updatepass', {id, passType}, function({status, message, newPass}) {
+            if(status == 1) {
+              $(`.t-password-${id}`).html(newPass);
+              // alert('修改成功!');
+            }
+        }, 'json');
+      }
+    });
 
     function showDetail(id, visible) {
       if(visible) {

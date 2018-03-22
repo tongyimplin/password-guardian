@@ -8,11 +8,13 @@ var lessMiddleware = require('less-middleware');
 var session = require('express-session');
 var RedisStore = require('connect-redis')(session);
 
+
 var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
 const env = app.get('env');
+global.env = env;
 const config = require('./config').getConfig(env);
 console.log(`
 载入环境：${env}
