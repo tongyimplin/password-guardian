@@ -6,27 +6,24 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var lessMiddleware = require('less-middleware');
 var session = require('express-session');
+var RedisStore = require('connect-redis')(session);
 
 var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+const env = app.get('env');
+const config = require('./config').getConfig(env);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
 
 // session initialization
-var sess = {
-  secret: 'keyboard cat',
-    // genid: req => genuuid(),
-    cookie: {
-      maxAge: 10*60*1000
-    }
-};
-if (app.get('env') === 'production') {
+var sess = config.session;
+sess.store = new RedisStore(config.redis);
+if (env === 'production') {
   app.set('trust proxy', 1);
-  sess.cookie.secure = 1;
 }
 app.use(session(sess));
 
