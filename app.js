@@ -25,11 +25,13 @@ app.set('view engine', 'hbs');
 // session initialization
 var sess = config.session;
 sess.store = new RedisStore(config.redis);
+console.log('初始化redis store')
 if (env === 'production') {
   app.set('trust proxy', 1);
 }
+console.log('初始化session')
 app.use(session(sess));
-
+console.log('初始化session成功!')
 // session count
 // app.get('/', (req, res, next) => {
 //
@@ -83,4 +85,5 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+console.log('初始化app.js成功!')
 module.exports = app;

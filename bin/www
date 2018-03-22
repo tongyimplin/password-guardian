@@ -3,7 +3,7 @@
 /**
  * Module dependencies.
  */
-
+console.log('开始初始化./bin/www')
 var app = require('../app');
 var debug = require('debug')('password-guardian:server');
 var http = require('http');
@@ -11,8 +11,8 @@ var http = require('http');
 /**
  * Get port from environment and store in Express.
  */
-
 var port = normalizePort(process.env.PORT || '6000');
+console.log(`设置端口号: ${port}`)
 app.set('port', port);
 
 /**
@@ -87,4 +87,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log(`app is listening at ${addr}:${addr.port}`)
 }

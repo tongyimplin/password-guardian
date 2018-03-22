@@ -22,7 +22,7 @@ const ALL_CONFIG = {
       secret: 'keyboard cat',
       cookie: {
         maxAge: 10*60*1000,
-        secure: 1
+        // secure: 1
       },
       resave: false,
       saveUninitialized: true
