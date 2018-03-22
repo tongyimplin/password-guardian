@@ -11,7 +11,7 @@ var http = require('http');
 /**
  * Get port from environment and store in Express.
  */
-var port = normalizePort(process.env.PORT || '6000');
+var port = normalizePort(process.env.PORT || '3700');
 console.log(`设置端口号: ${port}`)
 app.set('port', port);
 
@@ -87,5 +87,5 @@ function onListening() {
     ? 'pipe ' + addr
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
-  console.log(`app is listening at ${addr}:${addr.port}`)
+  console.log(`app is listening at ${JSON.stringify(addr)}`)
 }
