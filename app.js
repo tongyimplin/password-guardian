@@ -14,7 +14,10 @@ var users = require('./routes/users');
 var app = express();
 const env = app.get('env');
 const config = require('./config').getConfig(env);
-
+console.log(`
+载入环境：${env}
+载入配置: ${JSON.stringify(config)}
+`);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
